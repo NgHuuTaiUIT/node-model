@@ -1,0 +1,14 @@
+services:
+  thumbnail-generator:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"  # Maps port 3000 on the host to port 3000 in the container
+    environment:
+     - CHROME_PATH=/usr/bin/google-chrome
+    volumes:
+      - .:/thumbnail-generator
+      - /thumbnail-generator/node_modules 
+    command: npm start 
+
