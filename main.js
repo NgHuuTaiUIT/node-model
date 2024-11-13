@@ -11,14 +11,14 @@ const PORT = process.env.PORT || 8000;
 //NOTE: Initialize Express app
 const app = express();
 
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Origin", "*");
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept"
-//   );
-//   next();
-// });
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(cors());
@@ -26,13 +26,11 @@ app.use(cors());
 //NOTE: Route handlers
 app.get("/create_thumbnail", async (req, res) => {
   const { inPath, outPath } = req.query;
-  generateThumbnail(inPath, outPath)
+  await generateThumbnail(inPath, outPath)
     .then(() => {
-      console.log("ok");
       res.send('ok')
     })
     .catch((err) => {
-      console.log(err);
       res.send('error')
     });
 });

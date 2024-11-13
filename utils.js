@@ -3,8 +3,10 @@ const path = require("path");
 const fs = require("fs/promises");
 
 const TIME_LIMIT = 1000 * 60 * 5; //5 minutes
+const PORT = process.env.PORT || 8000;
 
 function renderHTML(modelPath) {
+  const url = `http://localhost:${PORT}/${modelPath}`;
   return `<!DOCTYPE html>
             <html lang="en">
               <head>
@@ -29,7 +31,7 @@ function renderHTML(modelPath) {
               <body>
                 <model-viewer
                   id="model"
-                  src="${modelPath}"
+                  src="${url}"
                   ar
                   shadow-intensity="1"
                   touch-action="pan-y"
@@ -57,12 +59,11 @@ async function ensureThumbnailsDir(outPath) {
 
 async function generateThumbnail(inPath, outPath) {
   const start = performance.now();
-  console.log('start');
-  try {
-    await fs.access(inPath);
-  } catch {
-    throw new Error(`File not found: ${inPath}`);
-  }
+  // try {
+  //   await fs.access(inPath);
+  // } catch {
+  //   throw new Error(`File not found: ${inPath}`);
+  // }
 
   let browser;
   try {
@@ -71,7 +72,7 @@ async function generateThumbnail(inPath, outPath) {
 
     //NOTE: Launch browser with optimized settings
     browser = await puppeteer.launch({
-      headless: false ?? "new", // Using new headless mode
+      headless: "new", // Using new headless mode
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
@@ -86,14 +87,13 @@ async function generateThumbnail(inPath, outPath) {
     });
 
     const page = await browser.newPage();
-
     await page.setExtraHTTPHeaders({
       "Accept-Language": "en-US,en;q=0.9",
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       Accept:
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-      Connection: "keep-alive",
+      Connection: "keep-alive"
       //NOTE: Add any other headers you need
     });
 
@@ -138,20 +138,16 @@ async function generateThumbnail(inPath, outPath) {
       quality: 80,
       optimizeForSpeed: true
     });
-
-    console.log(`Saved in ${outPath}`);
+    const end = performance.now();
+    console.log(
+      `Saved in ${outPath}, Time execute:  ${(start).toFixed(2)}ms`
+    );
   } catch (error) {
     throw new Error("Error creating thumbnail");
   } finally {
     if (browser) {
       await browser.close();
     }
-    const end = performance.now();
-    console.log(
-      `Time taken to execute create thumbnail function: ${(end - start).toFixed(
-        2
-      )}ms`
-    );
   }
 }
 
