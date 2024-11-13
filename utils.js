@@ -140,7 +140,7 @@ async function generateThumbnail(inPath, outPath) {
     });
     const end = performance.now();
     console.log(
-      `Saved in ${outPath}, Time execute:  ${(start).toFixed(2)}ms`
+      `Saved in ${outPath}, Time execute:  ${(end - start).toFixed(2)}ms`
     );
   } catch (error) {
     throw new Error("Error creating thumbnail");
